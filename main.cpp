@@ -29,9 +29,11 @@ int producerThread(const int howMany, const int production_factor)
         std::this_thread::sleep_for(std::chrono::milliseconds(15));
         
         {   // limit time presence inside the mutex region
+            // also obey tha RAII principle (on the lock_guard object)
             std::lock_guard<std::mutex> lock(acquisitions.m);
-            image = acquisitions.images.emplace(randomize(production_factor));            
+            image = acquisitions.images.emplace(randomize(production_factor));
         }
+
         acquisitions.cv.notify_one();
         std::cout << "producer at loop " << i << " producing value: " << image << std::endl;
     }
@@ -46,6 +48,7 @@ int consumerThread(const int howMany)
         int image;
 
         {   // limit time presence inside the mutex region
+            // also obey tha RAII principle (on the lock_guard object
             std::unique_lock lock(acquisitions.m);
             acquisitions.cv.wait(lock, []{ return(acquisitions.images.size() > 0); });
             image = acquisitions.images.front();
