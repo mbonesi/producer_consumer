@@ -30,9 +30,9 @@ int producerThread(const int howMany, const int production_factor)
         
         {   // limit time presence inside the mutex region
             std::lock_guard<std::mutex> lock(acquisitions.m);
-            image = acquisitions.images.emplace(randomize(production_factor));
-            acquisitions.cv.notify_one();
+            image = acquisitions.images.emplace(randomize(production_factor));            
         }
+        acquisitions.cv.notify_one();
         std::cout << "producer at loop " << i << " producing value: " << image << std::endl;
     }
     return howMany;
